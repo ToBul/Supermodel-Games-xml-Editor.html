@@ -137,6 +137,7 @@
 		console.log(`Fetching content from: ${gamesXmlUrl}`);
 		const content = await getFileContent(gamesXmlUrl);
 		if (!content) {
+			errorMessage();
 			alert(`Error fetching Games.xml from repo\nRefresh the page to try again`);
 			return
 		} else {
@@ -246,6 +247,13 @@
 			console.error("Error fetching ${url}", error);
 			return null;
 		}
+	}
+
+	function errorMessage() {
+		document.write("<html><head><title>error</title></head><body>");
+		document.write("<h1>Error!</h1>");
+		document.write("<p>Refresh the page to try again.</p>");
+		document.write("</body></html>");
 	}
 
 	function removeNode(nodeArray) {
