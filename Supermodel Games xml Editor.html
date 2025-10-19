@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Supermodel Games xml Editor.html</title>
+</head>
+<body>
+  <p>Select games to keep</p>
+  <button id="deselectAll" class="button">Uncheck all</button>
+  <button id="selectAll" class="button">Check all</button>
+  <button id="parentsOnly" class="button">Parents only</button>
+  <button id="fanFavs" class="button">Fan favourites</button>
+  <button id="dlbutton" class="button">Download edited Games.xml</button>
+  <div id="game-list"></div><br>
+  <style>
+	p {
+	  margin-left: 20px;
+	  margin-top: 20px;
+	  margin-bottom: 20px;
+	  font-size: 300%
+	}
+    .parent {
+	  margin-left: 10px;
+	  margin-top: 20px;
+	  margin-bottom: 4px;
+	  zoom: 1.6;
+    }
+    .child {
+	  margin-left: 25px;
+	  margin-bottom: 8px;
+    }
+	.button {
+	  margin-left: 20px;
+	}
+  </style>
+  <script>
+	const deselectAll = document.getElementById("deselectAll");
+		deselectAll.addEventListener("click", function () {
+			selectAllBoxes(false);
+	});
+
+	const selectAll = document.getElementById("selectAll");
+		selectAll.addEventListener("click", function () {
+			selectAllBoxes(true);
+	});
+
+	const parentsOnly = document.getElementById("parentsOnly");
+		parentsOnly.addEventListener("click", function () {
+			parentBoxesOnly();
+	});
+
+	const fanFavs = document.getElementById("fanFavs");
+		fanFavs.addEventListener("click", function () {
+			fanFavBoxesOnly();
+	});
+
+	const dlBtnElement = document.getElementById("dlbutton");
+		dlBtnElement.addEventListener("click", function () {
+			downloadBtnFunc();
+	});
+
+	function selectAllBoxes(choice) {
+		const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+		checkboxes.forEach(checkbox => {
+			checkbox.checked = choice;
+		});
+	}
+
+	function fanFavBoxesOnly() {
+		const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+		checkboxes.forEach(checkbox => {
+			switch(checkbox.id) {
+				case 'daytona2':
+				case 'dayto2pe':
+				case 'lamachin':
+				case 'lostwsga':
+				case 'scud':
+				case 'srally2':
+				case 'swtrilgy':
+					checkbox.checked = true;
+					break;
+				default:
+					checkbox.checked = false;
+			}
+		});
+	}
+
+	function parentBoxesOnly() {
+		const parentboxes = document.querySelectorAll('div.parent input[type="checkbox"]');
+		parentboxes.forEach(checkbox => {
+			checkbox.checked = true;
+		});
+
+		const childboxes = document.querySelectorAll('div.child input[type="checkbox"]');
+		childboxes.forEach(checkbox => {
+			checkbox.checked = false;
+		});
+	}
+
+	function downloadBtnFunc() {
+		const checkedBoxes = document.querySelectorAll('input[type="checkbox"]:checked');
+		if (checkedBoxes.length == 0)  {
+			alert(`No games are selected`);
+			return
+		}
+
+		const uncheckedBoxes = document.querySelectorAll('input[type="checkbox"]:not(:checked)');
+		const gamesToRemove = [];
+		uncheckedBoxes.forEach(checkbox => {
+			gamesToRemove.push(checkbox.id);
+		});
+		removeNode(gamesToRemove);
+	}
+
+	function checkboxClicked() {
+		var gameName = event.target.name;
+		var relation = event.target.parentNode.className;
+
+		if (relation == 'parent') {
+			if (!event.target.checked) {
+				const selected = document.querySelectorAll(`input[name="${gameName}"]`);
+				selected.forEach(checkbox => {
+					checkbox.checked = false;
+				});
+			}
+		} else if (relation == 'child') {
+			if (event.target.checked) {
+				document.getElementById(gameName).checked = true;
+			}
+		}
+	}
+
+	let fullGamesxmlDoc = "";
+	let editedGamesxmlDoc = "";
+
+	async function fetchGamesxml() {
+		const gamesXmlUrl = "https://raw.githubusercontent.com/trzy/Supermodel/refs/heads/master/Config/Games.xml";
+		console.log(`Fetching content from: ${gamesXmlUrl}`);
+		const content = await getFileContent(gamesXmlUrl);
+		if (!content) {
+			alert(`Error fetching Games.xml from repo\nRefresh the page to try again`);
+			return
+		} else {
+			const parser = new DOMParser();
+			fullGamesxmlDoc = parser.parseFromString(content, 'text/xml');
+			editedGamesxmlDoc = fullGamesxmlDoc.cloneNode(true);
+			const allGameNodes = editedGamesxmlDoc.querySelectorAll('game[name]');
+
+			console.log(`\n${allGameNodes.length} games found`);
+
+			const childRoms = [];
+			const parentRoms = [];
+			var allRoms = [];
+
+			allGameNodes.forEach(node => {
+				const gameFound = node.getAttribute('name');
+				const parentFound = node.getAttribute('parent');
+				const childrenArray = [];
+				const titleFound = node.querySelector('title').textContent;
+				const versionFound = node.querySelector('version').textContent;
+				const yearFound = node.querySelector('year').textContent;
+
+				const gameInfo = {
+				title: titleFound,
+				version: versionFound,
+				year: yearFound,
+				relation : "",
+				children: childrenArray
+				}
+
+				allRoms[gameFound] = gameInfo;
+
+				if (parentFound) {
+					childRoms.push(gameFound);
+					allRoms[parentFound].children.push(gameFound);
+					delete allRoms[gameFound].children;
+					allRoms[gameFound].relation = "child";
+					allRoms[gameFound].parent = parentFound;
+				}
+				else {
+					parentRoms.push(gameFound);
+					allRoms[gameFound].relation = "parent";
+				}
+			});
+
+			console.log(`\n${parentRoms.length} parents\n${childRoms.length} children`);
+		}
+
+		const romSetContainer = document.getElementById("game-list");
+
+		for (const [key, value] of Object.entries(allRoms)) {
+			const romSetName = [key];
+			const romSetObj = allRoms[key];
+			const familyNames = [];
+
+			if (romSetObj['relation'] == 'parent') {
+				familyNames.push(romSetName);
+			}
+			if (romSetObj['children'] && romSetObj['children'] != 0) {
+				romSetObj['children'].forEach(item => {
+					familyNames.push(item);
+				});
+			}
+			if (familyNames != 0) {
+				console.log(`${familyNames}`);
+			}
+
+			familyNames.forEach(item => {
+
+				const itemDiv = document.createElement('div');
+
+				const checkbox = document.createElement('input');
+				checkbox.type = 'checkbox';
+				checkbox.checked = true;
+				checkbox.id = item;
+				checkbox.name = romSetName;
+
+				checkbox.addEventListener("click", checkboxClicked);
+
+				if (checkbox.id == checkbox.name) {
+					itemDiv.classList.add('parent');
+				} else {
+					itemDiv.classList.add('child');
+				}
+
+				const label = document.createElement('label');
+				label.htmlFor = item;
+				label.textContent = `${item} - ${allRoms[item]['title']} (${allRoms[item]['version']})`;
+
+				itemDiv.appendChild(checkbox);
+				itemDiv.appendChild(label);;
+
+				romSetContainer.appendChild(itemDiv);
+			});
+		}
+	}
+
+	async function getFileContent(url) {
+		try {
+			const response = await fetch(url);
+			if (!response.ok) {
+				throw new Error(`HTTP error! status: ${response.status}`);
+			}
+			const fileContent = await response.text();
+			return fileContent;
+		} catch (error) {
+			console.error("Error fetching ${url}", error);
+			return null;
+		}
+	}
+
+	function removeNode(nodeArray) {
+		for (let i = 0; i < nodeArray.length; i++) {
+			const nodeToRemove = editedGamesxmlDoc.querySelector(`game[name="${nodeArray[i]}"]`);
+			if (nodeToRemove) {
+				console.log(`\nRemoving ${nodeArray[i]} from Games.xml`);
+				nodeToRemove.parentNode.removeChild(nodeToRemove);
+			}
+		}
+		// Convert the updated XML document back to a string
+		const gamesXmlContent = new XMLSerializer().serializeToString(editedGamesxmlDoc).replace("--><games>", "-->\n<games>").replaceAll("/>", " />").replaceAll("\n  \n", "");
+		downloadFile(gamesXmlContent);
+		editedGamesxmlDoc = fullGamesxmlDoc;
+	}
+
+	function downloadFile(Content) {
+		//create an invisible element
+		let element = document.createElement('a');
+
+		element.setAttribute('href',
+			'data:xml;charset=utf-8, '
+			+ encodeURIComponent(Content));
+
+		element.setAttribute('download', "Games.xml");
+		document.body.appendChild(element);
+		element.click();
+
+		document.body.removeChild(element);
+	}
+
+	fetchGamesxml();
+</script>
+</body>
+</html>
