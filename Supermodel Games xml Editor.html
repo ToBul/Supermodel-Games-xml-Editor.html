@@ -1,7 +1,29 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Supermodel Games xml Editor.html</title>
+<meta charset="UTF-8">
+<title>Supermodel Games xml Editor.html</title>
+<style>
+  p {
+    margin-left: 20px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    font-size: 300%
+  }
+  .parent {
+    margin-left: 10px;
+    margin-top: 20px;
+    margin-bottom: 4px;
+    zoom: 1.6;
+  }
+  .child {
+    margin-left: 25px;
+    margin-bottom: 8px;
+  }
+  .button {
+    margin-left: 20px;
+  }
+</style>
 </head>
 <body>
   <p id="messageOutput" ></p>
@@ -12,28 +34,7 @@
   <button id="dlXmlButton" class="button">Download Games.xml</button>
   <button id="dlDatButton" class="button">Download ROM dat file</button>
   <div id="game-list"></div><br>
-  <style>
-	p {
-	  margin-left: 20px;
-	  margin-top: 20px;
-	  margin-bottom: 20px;
-	  font-size: 300%
-	}
-	.parent {
-	  margin-left: 10px;
-	  margin-top: 20px;
-	  margin-bottom: 4px;
-	  zoom: 1.6;
-	}
-	.child {
-	  margin-left: 25px;
-	  margin-bottom: 8px;
-	}
-	.button {
-	  margin-left: 20px;
-	}
-  </style>
-  <script>
+<script>
 	const messageOutputElement = document.getElementById('messageOutput');
 	const message = (messageInfo) => {
 		messageOutputElement.textContent = messageInfo;
