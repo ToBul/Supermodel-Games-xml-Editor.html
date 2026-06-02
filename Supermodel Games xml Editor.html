@@ -110,13 +110,13 @@
 	}
 
 	async function downloadXmlBtnFunc() {
-		const gamesToRemoveArray =  await downloadShared();
+		const gamesToRemoveArray = await downloadShared();
 			const xmlContent = await removeNode(gamesToRemoveArray);
 			downloadFile(xmlContent, "Games.xml");
 	}
 
 	async function downloadDatBtnFunc() {
-		const gamesToRemoveArray =  await downloadShared();
+		const gamesToRemoveArray = await downloadShared();
 		if ((gamesToRemoveArray.includes('mgtrkbad')) == false) {
 			gamesToRemoveArray.push('mgtrkbad');
 		}
@@ -130,6 +130,7 @@
 	function downloadShared() {
 		editedGamesxmlDoc = fullGamesxmlDoc.cloneNode(true);
 		const checkedBoxes = document.querySelectorAll('input[type="checkbox"]:checked');
+
 		if (checkedBoxes.length == 0)  {
 			alert(`No games are selected`);
 			return
@@ -137,6 +138,7 @@
 
 		const uncheckedBoxes = document.querySelectorAll('input[type="checkbox"]:not(:checked)');
 		const gamesToRemove = [];
+
 		uncheckedBoxes.forEach(checkbox => {
 			gamesToRemove.push(checkbox.id);
 		});
@@ -173,6 +175,27 @@
 		} else {
 			const parser = new DOMParser();
 			fullGamesxmlDoc = parser.parseFromString(content, 'text/xml');
+
+      ///////////////// Remove Lost World Gun Fuckery /////////////////
+      const games = fullGamesxmlDoc.querySelectorAll('game');
+
+      games.forEach(gameNode => {
+          const titleEl = gameNode.querySelector('title').textContent;
+
+          if (titleEl == "The Lost World") {
+            const inputs = gameNode.querySelectorAll('input');
+            inputs.forEach(input => {
+              const typeValue = input.getAttribute("type");
+
+              if (typeValue && typeValue.startsWith("analog_gun")) {
+                const newTypeValue = typeValue.replace("analog_gun", "gun");
+                input.setAttribute("type", newTypeValue);
+              }
+            });
+          }
+      });
+      /////////////////////////////////////////////////////////////////
+
 			editedGamesxmlDoc = fullGamesxmlDoc.cloneNode(true);
 			const allGameNodes = editedGamesxmlDoc.querySelectorAll('game[name]');
 
@@ -433,13 +456,16 @@
 
 	function removeNode(nodeArray) {
 		console.log(`number of games to remove: ${nodeArray.length}`);
+
 		for (let i = 0; i < nodeArray.length; i++) {
 			const nodeToRemove = editedGamesxmlDoc.querySelector(`game[name="${nodeArray[i]}"]`);
+
 			if (nodeToRemove) {
 				console.log(`Removing ${nodeArray[i]} from Games.xml`);
 				nodeToRemove.parentNode.removeChild(nodeToRemove);
 			}
 		}
+
 		// Convert the updated XML document back to a string
 		const gamesXmlString = new XMLSerializer().serializeToString(editedGamesxmlDoc).replace("--><games>", "-->\n<games>").replaceAll("/>", " />").replaceAll("\n  \n", "");
 		return gamesXmlString;
