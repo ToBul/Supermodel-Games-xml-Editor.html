@@ -2,41 +2,159 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Supermodel Games xml Editor.html</title>
+  <title>Supermodel Games xml Editor.html</title>
 <style>
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+   :root {
+    --dark-blue: #3185b3;
+    --mid-blue: #c9e8ff;
+    --light-blue: #f1f5f9;
+
+    --dark-grey: #1e293b;
+    --mid-grey: #8f8f90;
+
+    --shadow-heavy: rgba(2, 132, 199, 0.5);
+    --shadow-faint: rgba(2, 132, 199, 0.2);
+  }
+
   body {
     font-family: 'Segoe UI', sans-serif;
+    color: var(--dark-grey);
+    padding: 2rem;
+    line-height: 1.5;
+    user-select: none;
   }
-  p {
-    margin-left: 20px;
-    margin-top: 20px;
-    margin-bottom: 20px;
-    font-size: 300%
+
+  p#messageOutput {
+    font-size: 3rem;
+    font-weight: 600;
+    color: var(--dark-blue);
+    background-color: var(--mid-blue);
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 2rem;
   }
-  .parent {
-    margin-left: 10px;
-    margin-top: 20px;
-    margin-bottom: 4px;
-    zoom: 1.6;
+
+  .button-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    padding: 1rem;
+    border-radius: 8px;
+    border: 1px solid var(--mid-blue);
+    box-shadow: 0 1px 3px var(--shadow-faint);
   }
-  .child {
-    margin-left: 45px;
-    margin-bottom: 8px;
-  }
+
   .button {
-    margin-left: 20px;
+    font-family: inherit;
+    font-size: 0.9rem;
+    font-weight: 600;
+    padding: 0.6rem 1.2rem;
+    color: var(--dark-grey);
+    background-color: white;
+    border: 1px solid var(--dark-blue);
+    border-radius: 6px;
+    box-shadow: 0 4px 12px var(--shadow-heavy);
+    cursor: pointer;
+    transition: all 0.1s ease;
+  }
+
+  .button:hover {
+    transform: scale(1.1);
+  }
+
+  #dlXmlButton, #dlDatButton {
+    background-color: var(--dark-blue);
+    color: white;
+  }
+
+  .button:active {
+    transform: scale(1);
+  }
+
+  #game-list {
+    background-color: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    padding-top: 0.75rem;
+    border: 1px solid var(--mid-blue);
+    box-shadow: 0 1px 3px var(--shadow-faint);
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .parent {
+    font-size: 1.05rem;
+    font-weight: 600;
+    background-color: var(--light-blue);
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    margin-top: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .child {
+    font-size: 0.95rem;
+    padding: 0.5rem 1rem 0.5rem 2.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    border-bottom: 1px solid var(--light-blue);
+  }
+
+  input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 1.2rem;
+    height: 1.2rem;
+    border: 2px solid var(--mid-grey);
+    border-radius: 4px;
+    background-color: white;
+    cursor: pointer;
+    display: inline-grid;
+    place-content: center;
+    transition: all 0.1s ease;
+  }
+
+  input[type="checkbox"]:checked {
+    background-color: var(--dark-blue);
+    border-color: var(--dark-blue);
+  }
+
+  input[type="checkbox"]:checked::before {
+    content: "";
+    width: 0.6rem;
+    height: 0.6rem;
+    transform: scale(1);
+    background-color: white;
+    clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
   }
 </style>
 </head>
 <body>
-  <p id="messageOutput" ></p>
-  <button id="deselectAll" class="button">Uncheck all</button>
-  <button id="selectAll" class="button">Check all</button>
-  <button id="parentsOnly" class="button">Parents only</button>
-  <button id="fanFavs" class="button">Fan favourites</button>
-  <button id="dlXmlButton" class="button">Download Games.xml</button>
-  <button id="dlDatButton" class="button">Download ROM dat file</button>
-  <div id="game-list"></div><br>
+  <p id="messageOutput"></p>
+
+  <div class="button-group">
+    <button id="deselectAll" class="button">Uncheck all</button>
+    <button id="selectAll" class="button">Check all</button>
+    <button id="parentsOnly" class="button">Parents only</button>
+    <button id="fanFavs" class="button">Fan favourites</button>
+    <button id="dlXmlButton" class="button">Download Games.xml</button>
+    <button id="dlDatButton" class="button">Download ROM dat file</button>
+  </div>
+
+  <div id="game-list">
+  </div>
+
 <script>
   const messageOutputElement = document.getElementById('messageOutput');
   const message = (messageInfo) => {
