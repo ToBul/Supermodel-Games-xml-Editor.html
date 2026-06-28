@@ -10,7 +10,7 @@
     padding: 0;
   }
 
-   :root {
+  :root {
     --dark-blue: #3185b3;
     --mid-blue: #c9e8ff;
     --light-blue: #f1f5f9;
@@ -238,9 +238,6 @@
 
   async function downloadDatBtnFunc() {
     const gamesToRemoveArray = await downloadShared();
-    if ((gamesToRemoveArray.includes('mgtrkbad')) == false) {
-      gamesToRemoveArray.push('mgtrkbad');
-    }
     const xmlContentString = await removeNode(gamesToRemoveArray);
     if (!Object.keys(romsByCrc).length) {
       romsByCrc = await fetchMameFilesFromUrl();
@@ -464,8 +461,25 @@
       alert(`Error creating CRC info\nRefresh the page to try again`);
       return
     }
+
+    addMgtrkbad();
+
     message(`Select games to keep`);
     return romsByCrc;
+  }
+
+  function addMgtrkbad() {
+    romsByCrc["e028d7ca"] = {
+      romNames: "epr-21434.20",
+      size: 2097152,
+      sha1: "7e5d1cef6d9ef767f07320e9c099004e081f52dd"
+    };
+
+    romsByCrc["60aa9d76"] = {
+      romNames: "epr-21433.18",
+      size: 2097152,
+      sha1: "b27741568a4fd0494b2254e468faea569e2d9fef"
+    };
   }
 
   async function parseGamesxml(romsByCrc, gamesXmlString) {
@@ -541,7 +555,7 @@
       `\t\t<date>${date.getFullYear()}-${month}-${day}</date>\n` +
       `\t\t<author>Supermodel Games xml Editor.html</author>\n` +
       `\t\t<url>https://github.com/ToBul/Supermodel-Games-xml-Editor.html</url>\n` +
-      `\t\t<comment>Matches Supermodel's Games.xml with mgtrkbad removed. (Edited)</comment>\n` +
+      `\t\t<comment>Matches Supermodel's Games.xml</comment>\n` +
       `\t</header>\n`;
 
       let footer =
