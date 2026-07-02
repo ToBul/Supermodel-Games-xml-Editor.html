@@ -602,7 +602,7 @@
     }
 
     // Convert the updated XML document back to a string
-    const gamesXmlString = new XMLSerializer().serializeToString(editedGamesxmlDoc).replace("--><games>", "-->\n<games>").replaceAll("/>", " />").replaceAll("\n  \n", "");
+    const gamesXmlString = new XMLSerializer().serializeToString(editedGamesxmlDoc).replace("--><games>", "-->\n<games>").replaceAll("/>", " />").replaceAll("\n  \n", "").replaceAll("\r\n  \r\n", "");
     return gamesXmlString;
   }
 
