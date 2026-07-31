@@ -462,23 +462,32 @@
       return
     }
 
-    addMgtrkbad();
+    addOutdatedRoms();
 
     message(`Select games to keep`);
     return romsByCrc;
   }
 
-  function addMgtrkbad() {
+  function addOutdatedRoms() {
+    // magtruck
     romsByCrc["e028d7ca"] = {
       romNames: "epr-21434.20",
       size: 2097152,
       sha1: "7e5d1cef6d9ef767f07320e9c099004e081f52dd"
     };
 
+    // magtruck
     romsByCrc["60aa9d76"] = {
       romNames: "epr-21433.18",
       size: 2097152,
       sha1: "b27741568a4fd0494b2254e468faea569e2d9fef"
+    };
+
+    // vs298
+    romsByCrc["c3bbb270"] = {
+      romNames: "epr-20917.17",
+      size: 1048576,
+      sha1: "16b2342031ff72408f2290e775df5c8aa344c2e4"
     };
   }
 
