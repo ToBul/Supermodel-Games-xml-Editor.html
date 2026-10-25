@@ -540,7 +540,7 @@
             let notFound = `\t\t<rom name="${splitLine[3]}" crc="${crcTrim}"/> <!-- ${`#`.repeat(16)} SHA-1 AND SIZE INFO NOT FOUND ${`#`.repeat(16)} -->\n`;
             datContent += notFound;
             const lineChar = `*`;
-            console.log(`${lineChar.repeat(52)} WARNING ${lineChar.repeat(52)}\n\nSupermodel is using a ROM not found in the parsed drivers, SHA-1 and size info will have to be added to the dat file manually.\n\n${notFound.trim()}\n\n${lineChar.repeat(113)}\n`);
+            console.log(`${lineChar.repeat(59)} WARNING ${lineChar.repeat(59)}\n\nSupermodel is using a ROM not found in the parsed drivers, SHA-1 and size info will have to be added to the dat file manually.\n\n${notFound.trim()}\n\n${lineChar.repeat(127)}\n`);
           }
         }
       }
